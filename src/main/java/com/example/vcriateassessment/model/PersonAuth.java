@@ -1,4 +1,4 @@
-package com.example.vcriateassesment.model;
+package com.example.vcriateassessment.model;
 
 import lombok.Data;
 

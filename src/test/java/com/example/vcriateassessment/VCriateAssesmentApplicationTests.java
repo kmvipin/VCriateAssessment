@@ -1,4 +1,4 @@
-package com.example.vcriateassesment;
+package com.example.vcriateassessment;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

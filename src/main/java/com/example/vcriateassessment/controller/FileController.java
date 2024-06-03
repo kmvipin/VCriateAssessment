@@ -1,6 +1,7 @@
-package com.example.vcriateassesment.controller;
+package com.example.vcriateassessment.controller;
 
-import com.example.vcriateassesment.model.ApiResponse;
+import com.example.vcriateassessment.model.ApiResponse;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -15,12 +16,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @RestController
+@RequestMapping("/api")
 public class FileController {
 
     @Value("${vcriate.file.location}")
     private String path;
 
-    private final Path fileLocation = Paths.get(path);
+    private Path fileLocation;
+
+    @PostConstruct
+    private void init(){
+        this.fileLocation = Paths.get(this.path);
+    }
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -30,7 +37,7 @@ public class FileController {
             ApiResponse apiResponse = new ApiResponse(true,"File Upload Successfully");
             return ResponseEntity.status(200).body(apiResponse);
         } catch (Exception e) {
-            ApiResponse apiResponse = new ApiResponse(true,e.getMessage());
+            ApiResponse apiResponse = new ApiResponse(false,e.getMessage());
             return ResponseEntity.status(500).body(apiResponse);
         }
     }

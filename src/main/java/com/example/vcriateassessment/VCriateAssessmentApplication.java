@@ -1,13 +1,13 @@
-package com.example.vcriateassesment;
+package com.example.vcriateassessment;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VCriateAssesmentApplication {
+public class VCriateAssessmentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VCriateAssesmentApplication.class, args);
+		SpringApplication.run(VCriateAssessmentApplication.class, args);
 	}
 
 }
