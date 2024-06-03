@@ -9,4 +9,5 @@ public class FileController {
     @Value("${vcriate.file.location}")
     private String path;
 
+
 }
