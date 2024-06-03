@@ -1,15 +1,17 @@
 package com.example.vcriateassessment.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 @Data
 @NoArgsConstructor
+@Entity
 public class AuthCredential {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     @JsonIgnore
     private String email;

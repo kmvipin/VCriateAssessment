@@ -1,7 +1,7 @@
 package com.example.vcriateassessment.security;
 
 import com.example.vcriateassessment.model.AuthCredential;
-import com.example.vcriateassessment.repository.AuthCredentialRepository;
+import com.example.vcriateassessment.repository.AuthCredRepository;
 import com.example.vcriateassessment.security.interf.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class PersonDetailService implements UserDetailsService {
 
     @Autowired
-    private AuthCredentialRepository authCredentialRepository;
+    private AuthCredRepository authCredRepository;
 
     @Override
     public MyUserDetails loadUserByUsername(String email) {
@@ -26,7 +26,7 @@ public class PersonDetailService implements UserDetailsService {
         Supplier<AuthCredential> authCredentialSupplier = () -> {
             AuthCredential authCredential;
             try {
-                authCredential = this.authCredentialRepository.findByEmail(email);
+                authCredential = this.authCredRepository.findByEmail(email);
 
                 if (authCredential == null) {
                     throw new UsernameNotFoundException("Username Not Found");

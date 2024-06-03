@@ -5,8 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AuthCredentialRepository extends JpaRepository<AuthCredential, Long> {
-
+public interface AuthCredRepository extends JpaRepository<AuthCredential, Long> {
     boolean existsByEmail(String email);
     AuthCredential findByEmail(String username);
 }

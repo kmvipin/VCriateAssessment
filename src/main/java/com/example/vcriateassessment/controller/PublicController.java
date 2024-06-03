@@ -3,12 +3,10 @@ package com.example.vcriateassessment.controller;
 import com.example.vcriateassessment.model.ApiResponse;
 import com.example.vcriateassessment.model.AuthCredential;
 import com.example.vcriateassessment.model.JwtAuthResponse;
-import com.example.vcriateassessment.repository.AuthCredentialRepository;
+import com.example.vcriateassessment.repository.AuthCredRepository;
 import com.example.vcriateassessment.security.JwtTokenHelper;
 import com.example.vcriateassessment.security.PersonDetailService;
-import com.example.vcriateassessment.security.interf.MyUserDetails;
 import com.example.vcriateassessment.service.EmailService;
-import com.example.vcriateassessment.service.LoginService;
 import com.example.vcriateassessment.service.OTPService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,8 +29,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/public")
 public class PublicController {
-    private final LoginService loginService;
-
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -42,17 +39,17 @@ public class PublicController {
     private JwtTokenHelper jwtTokenHelper;
 
     @Autowired
-    private AuthCredentialRepository authCredentialRepository;
+    private AuthCredRepository authCredRepository;
 
     @Autowired
     private EmailService emailService;
 
-    @Value("${vcriate.same_site}")
+    @Value("${vcriate.cookie.samesite}")
     private String same_site;
 
-    @Autowired
-    public PublicController(LoginService loginService) {
-        this.loginService = loginService;
+    @GetMapping("/")
+    private String helloWorld(){
+        return "Hello World!!";
     }
 
     @PostMapping("/auth/login")
@@ -66,24 +63,18 @@ public class PublicController {
             jwtAuthResponse.setMessage(e.getMessage());
             return ResponseEntity.status(401).body(jwtAuthResponse);
         }
-        MyUserDetails userDetails = this.personDetailService
-                .loadUserByUsername(authCredential.getEmail());
+        UserDetails userDetails = personDetailService.loadUserByUsername(authCredential.getEmail());
+        String token = this.jwtTokenHelper.generateToken(userDetails);
+
         List<GrantedAuthority> auth = (List<GrantedAuthority>) userDetails.getAuthorities();
         String userRole = auth.get(0).getAuthority();
-        if(!userRole.equalsIgnoreCase("ROLE_ADMIN") && !userRole.equalsIgnoreCase("ROLE_NORMAL")){
-            JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
-            jwtAuthResponse.setSuccess(false);
-            jwtAuthResponse.setMessage("Invalid User");
-            return ResponseEntity.status(200).body(jwtAuthResponse);
-        }
 
-        String token = this.jwtTokenHelper.generateToken(authCredential.getEmail());
         JwtAuthResponse response = new JwtAuthResponse();
         response.setToken("Bearer_"+token);
         ResponseCookie responseCookie = ResponseCookie.from("authorization_token","Bearer_"+token)
                 .path("/").sameSite(same_site).httpOnly(true).secure(true).build();
         response.setSuccess(true);
-        response.setRole(userDetails.getRole());
+        response.setRole(userRole);
         response.setMessage("Login SuccessFully");
         return ResponseEntity.status(200).header(HttpHeaders.SET_COOKIE,responseCookie.toString()).body(response);
     }
@@ -94,7 +85,7 @@ public class PublicController {
                @RequestParam String otp, HttpServletRequest request){
         int status;
         ApiResponse apiResponse = new ApiResponse();
-        if(authCredentialRepository.existsByEmail(person.getEmail())){
+        if(authCredRepository.existsByEmail(person.getEmail())){
             return ResponseEntity.status(400).body(new ApiResponse(false,"Email Already Exist"));
         }
         ResponseEntity<ApiResponse> res = verifyOTP(otp,person.getEmail(),request);
@@ -102,7 +93,7 @@ public class PublicController {
             return res;
         }
         try{
-            authCredentialRepository.save(person);
+            authCredRepository.save(person);
             apiResponse.setSuccess(true);
             apiResponse.setMessage("Person Saved Successfully");
             status = 201;
@@ -117,7 +108,7 @@ public class PublicController {
 
     @GetMapping("/verify/user-status")
     public ResponseEntity<ApiResponse> checkUserStatus(@RequestParam String email, @RequestParam String username){
-        if(authCredentialRepository.existsByEmail(email)){
+        if(authCredRepository.existsByEmail(email)){
             return ResponseEntity.status(200).body(new ApiResponse(false,"Email Already Exist"));
         }
         return ResponseEntity.status(200).body(new ApiResponse(true,"UserName And Email Are Available"));

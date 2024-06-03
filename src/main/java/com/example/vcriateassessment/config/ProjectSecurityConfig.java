@@ -34,16 +34,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ProjectSecurityConfig{
     public static final String[] PUBLIC_URLS = {
-            "/api/public/**"
+            "/api/public/**", "/v3/api-docs", "/v2/api-docs", "/swagger-ui/**",
+            "swagger-resources/**", "webjars/**","/h2-console/**"
     };
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired
-    private PersonDetailService personDetailService;
 
-    @Value("${portfoliobuilder.allowed.origin}")
+    @Value("${vcriate.allowed.origin}")
     private String allowedOrigin;
 
     @Bean
@@ -57,34 +56,16 @@ public class ProjectSecurityConfig{
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                         httpSecurityExceptionHandlingConfigurer
-                                .authenticationEntryPoint(this.jwtAuthenticationEntryPoint));
+                                .authenticationEntryPoint(this.jwtAuthenticationEntryPoint))
+                .headers(httpSecurityHeadersConfigurer ->
+                        httpSecurityHeadersConfigurer.frameOptions(frameOptionsConfig ->
+                                frameOptionsConfig.sameOrigin()));
 
         http.addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.authenticationProvider(daoAuthenticationProvider());
         DefaultSecurityFilterChain defaultSecurityFilterChain = http.build();
 
         return defaultSecurityFilterChain;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();//
-    }
-
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(this.personDetailService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
     }
 
     @Bean
@@ -112,11 +93,6 @@ public class ProjectSecurityConfig{
         bean.setOrder(-110);
 
         return bean;
-    }
-
-    @Bean
-    public HttpSessionIdResolver httpSessionIdResolver() {
-        return HeaderHttpSessionIdResolver.xAuthToken(); // or CookieHttpSessionIdResolver.default()
     }
 
 }
