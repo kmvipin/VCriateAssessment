@@ -1,8 +1,12 @@
 package com.example.vcriateassessment.config;
 
+import com.example.vcriateassessment.service.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,6 +21,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ProjectSecurityConfig{
+
+    @Autowired
+    private LoginService loginService;
     public static final String[] PUBLIC_URLS = {
             "/api/public/**"
     };
@@ -38,4 +45,21 @@ public class ProjectSecurityConfig{
 
         return defaultSecurityFilterChain;
     }
+
+    public AuthenticationManagerBuilder authenticationManagerBuilder() {
+        var managerBuilder = new AuthenticationManagerBuilder(null);
+        try {
+            managerBuilder.inMemoryAuthentication()
+                    .withUser("admin").password("admin123").roles("ROLE_ADMIN");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return managerBuilder;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return authentication -> authenticationManagerBuilder().getOrBuild().authenticate(authentication);
+    }
+
 }
