@@ -1,6 +1,6 @@
 package com.example.vcriateassessment.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 public class AuthCredential {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
-    @JsonIgnore
+    @GeneratedValue
+    private Long id;
     private String email;
     private String password;
-    private String role;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String role = "ROLE_USER";
 
 
     public AuthCredential(String email, String pass, String role){

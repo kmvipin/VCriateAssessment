@@ -52,7 +52,8 @@ public class PersonDetailService implements UserDetailsService {
 
             @Override
             public String getUsername() {
-                return null;
+                AuthCredential authCredential = authCredentialSupplier.get();
+                return authCredential.getEmail();
             }
 
             @Override

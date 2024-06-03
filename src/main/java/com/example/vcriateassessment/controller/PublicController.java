@@ -8,6 +8,7 @@ import com.example.vcriateassessment.security.JwtTokenHelper;
 import com.example.vcriateassessment.security.PersonDetailService;
 import com.example.vcriateassessment.service.EmailService;
 import com.example.vcriateassessment.service.OTPService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +45,9 @@ public class PublicController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${vcriate.cookie.samesite}")
     private String same_site;
@@ -84,6 +89,9 @@ public class PublicController {
     savePerson(@RequestBody @Valid AuthCredential person,
                @RequestParam String otp, HttpServletRequest request){
         int status;
+        String pass = person.getPassword();
+        String BCryptPass = passwordEncoder.encode(pass);
+        person.setPassword(BCryptPass);
         ApiResponse apiResponse = new ApiResponse();
         if(authCredRepository.existsByEmail(person.getEmail())){
             return ResponseEntity.status(400).body(new ApiResponse(false,"Email Already Exist"));
@@ -148,5 +156,11 @@ public class PublicController {
         } catch (BadCredentialsException e) {
             throw new RuntimeException("Invalid username or password !!");
         }
+    }
+
+    @PostConstruct
+    public void init(){
+        AuthCredential authCredential = new AuthCredential("vipin",passwordEncoder.encode("password"),"ROLE_USER");
+        authCredRepository.save(authCredential);
     }
 }
