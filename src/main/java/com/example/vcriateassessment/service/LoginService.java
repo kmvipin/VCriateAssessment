@@ -1,6 +1,6 @@
 package com.example.vcriateassessment.service;
 
-import com.example.vcriateassessment.model.PersonAuth;
+import com.example.vcriateassessment.model.AuthCredential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,9 +18,9 @@ public class LoginService {
         this.authenticationManager = authenticationManager;
     }
 
-    public Authentication authenticateUser(PersonAuth personAuth) throws AuthenticationException {
-        String username = personAuth.getEmail();
-        String password = personAuth.getPassword();
+    public Authentication authenticateUser(AuthCredential authCredential) throws AuthenticationException {
+        String username = authCredential.getEmail();
+        String password = authCredential.getPassword();
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
         return authenticationManager.authenticate(authRequest);

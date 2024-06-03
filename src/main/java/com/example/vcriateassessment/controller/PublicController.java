@@ -1,6 +1,6 @@
 package com.example.vcriateassessment.controller;
 
-import com.example.vcriateassessment.model.PersonAuth;
+import com.example.vcriateassessment.model.AuthCredential;
 import com.example.vcriateassessment.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +22,11 @@ public class PublicController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<String> login(@RequestBody PersonAuth personAuth) {
+    public ResponseEntity<String> login(@RequestBody AuthCredential authCredential) {
         try {
-            Authentication authentication = loginService.authenticateUser(personAuth);
+            Authentication authentication = loginService.authenticateUser(authCredential);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
             return ResponseEntity.ok("Authentication Successful");
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Authentication Failed: " + e.getMessage());
