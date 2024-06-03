@@ -8,6 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface AuthCredentialRepository extends JpaRepository<AuthCredential, Long> {
 
     boolean existsByEmail(String email);
-
     AuthCredential findByEmail(String username);
 }

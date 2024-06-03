@@ -47,7 +47,7 @@ public class PersonDetailService implements UserDetailsService {
             @Override
             public String getPassword() {
                 AuthCredential authCredential = authCredentialSupplier.get();
-                return authCredential.getPass();
+                return authCredential.getPassword();
             }
 
             @Override
