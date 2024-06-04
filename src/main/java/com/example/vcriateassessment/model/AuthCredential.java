@@ -21,7 +21,8 @@ public class AuthCredential {
     private String role = "ROLE_USER";
 
 
-    public AuthCredential(String email, String pass, String role){
+    public AuthCredential(String name, String email, String pass, String role){
+        this.name = name;
         this.email = email;
         this.password = pass;
         this.role = role;

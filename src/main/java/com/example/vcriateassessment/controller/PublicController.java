@@ -75,6 +75,8 @@ public class PublicController {
                 .path("/").sameSite(same_site).httpOnly(true).secure(true).build();
         response.setSuccess(true);
         response.setRole(userRole);
+        response.setEmail(authCredential.getEmail());
+        response.setName(authCredential.getName());
         response.setMessage("Login SuccessFully");
         return ResponseEntity.status(200).header(HttpHeaders.SET_COOKIE,responseCookie.toString()).body(response);
     }
@@ -149,13 +151,13 @@ public class PublicController {
         try {
             this.authenticationManager.authenticate(authenticationToken);
         } catch (BadCredentialsException e) {
-            throw new RuntimeException("Invalid username or password !!");
+            throw new RuntimeException("Invalid email or password !!");
         }
     }
 
     @PostConstruct
     public void init(){
-        AuthCredential authCredential = new AuthCredential("vipin",passwordEncoder.encode("password"),"ROLE_USER");
+        AuthCredential authCredential = new AuthCredential("Vipin","vipin78383@gmail.com",passwordEncoder.encode("Vipin"),"ROLE_USER");
         authCredRepository.save(authCredential);
     }
 }

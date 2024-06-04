@@ -29,7 +29,7 @@ public class PersonDetailService implements UserDetailsService {
                 authCredential = this.authCredRepository.findByEmail(email);
 
                 if (authCredential == null) {
-                    throw new UsernameNotFoundException("Username Not Found");
+                    throw new UsernameNotFoundException("email Not Found");
                 }
                 return authCredential;
             } catch (Exception e) {

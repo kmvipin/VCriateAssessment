@@ -93,4 +93,25 @@ public class FileController {
         }
         return ResponseEntity.status(200).body(filesName);
     }
+
+    @DeleteMapping("/delete/{filename}")
+    public ResponseEntity<ApiResponse> deleteFile(@PathVariable("filename") String filename, Principal principal){
+        if (principal instanceof UsernamePasswordAuthenticationToken == false) {
+            throw new RuntimeException("User Not Exist");
+        }
+        String email = ((MyUserDetails)((UsernamePasswordAuthenticationToken) principal)
+                .getPrincipal()).getEmail();
+
+        Path fileLocation = Paths.get(this.path+File.separator+email);
+        try {
+            Path filePath = fileLocation.resolve(filename).normalize();
+            Files.deleteIfExists(filePath);
+            ApiResponse apiResponse = new ApiResponse(true,"File Successfully Deleted");
+            return ResponseEntity.ok()
+                    .body(apiResponse);
+        } catch (Exception e) {
+            throw new RuntimeException("Something Went Wrong " + e.getMessage());
+        }
+    }
+
 }
