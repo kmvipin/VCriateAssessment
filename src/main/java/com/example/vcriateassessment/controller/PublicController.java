@@ -8,7 +8,6 @@ import com.example.vcriateassessment.security.JwtTokenHelper;
 import com.example.vcriateassessment.security.PersonDetailService;
 import com.example.vcriateassessment.service.EmailService;
 import com.example.vcriateassessment.service.OTPService;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -21,12 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/public")
@@ -66,17 +62,15 @@ public class PublicController {
         UserDetails userDetails = personDetailService.loadUserByUsername(authCredential.getEmail());
         String token = this.jwtTokenHelper.generateToken(userDetails);
 
-        List<GrantedAuthority> auth = (List<GrantedAuthority>) userDetails.getAuthorities();
-        String userRole = auth.get(0).getAuthority();
-
         JwtAuthResponse response = new JwtAuthResponse();
         response.setToken("Bearer_"+token);
         ResponseCookie responseCookie = ResponseCookie.from("authorization_token","Bearer_"+token)
                 .path("/").sameSite(same_site).httpOnly(true).secure(true).build();
+        AuthCredential authCredentialTemp = authCredRepository.findByEmail(authCredential.getEmail());
         response.setSuccess(true);
-        response.setRole(userRole);
+        response.setRole("ROLE_USER");
         response.setEmail(authCredential.getEmail());
-        response.setName(authCredential.getName());
+        response.setName(authCredentialTemp.getName());
         response.setMessage("Login SuccessFully");
         return ResponseEntity.status(200).header(HttpHeaders.SET_COOKIE,responseCookie.toString()).body(response);
     }
@@ -97,6 +91,7 @@ public class PublicController {
         if(!res.getBody().isSuccess()){
             return res;
         }
+        person.setRole("ROLE_USER");    //in production set role by constant interface
         try{
             authCredRepository.save(person);
             apiResponse.setSuccess(true);
@@ -153,11 +148,5 @@ public class PublicController {
         } catch (BadCredentialsException e) {
             throw new RuntimeException("Invalid email or password !!");
         }
-    }
-
-    @PostConstruct
-    public void init(){
-        AuthCredential authCredential = new AuthCredential("Vipin","vipin78383@gmail.com",passwordEncoder.encode("Vipin"),"ROLE_USER");
-        authCredRepository.save(authCredential);
     }
 }

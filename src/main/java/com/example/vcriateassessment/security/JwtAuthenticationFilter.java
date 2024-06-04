@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +23,10 @@ import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    public static final String[] PUBLIC_URLS = {
+            "/api/public/","/h2-console"
+    };
 
     private Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
@@ -100,5 +103,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    public boolean shouldNotFilter(HttpServletRequest req){
+        String reqURI = req.getRequestURI();
+        for(String url : PUBLIC_URLS){
+            if(reqURI.startsWith(url)){
+                return true;
+            }
+        }
+        return false;
     }
 }
