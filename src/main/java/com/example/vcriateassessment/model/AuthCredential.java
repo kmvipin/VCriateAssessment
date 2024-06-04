@@ -13,6 +13,8 @@ public class AuthCredential {
     @Id
     @GeneratedValue
     private Long id;
+
+    private String name;
     private String email;
     private String password;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

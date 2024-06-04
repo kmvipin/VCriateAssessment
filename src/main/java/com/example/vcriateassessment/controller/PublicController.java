@@ -52,11 +52,6 @@ public class PublicController {
     @Value("${vcriate.cookie.samesite}")
     private String same_site;
 
-    @GetMapping("/")
-    private String helloWorld(){
-        return "Hello World!!";
-    }
-
     @PostMapping("/auth/login")
     public ResponseEntity<JwtAuthResponse> login(@RequestBody AuthCredential authCredential) {
         try{
@@ -114,12 +109,12 @@ public class PublicController {
         return ResponseEntity.status(status).body(apiResponse);
     }
 
-    @GetMapping("/verify/user-status")
-    public ResponseEntity<ApiResponse> checkUserStatus(@RequestParam String email, @RequestParam String username){
+    @GetMapping("/verify/user-email")
+    public ResponseEntity<ApiResponse> checkUserStatus(@RequestParam String email){
         if(authCredRepository.existsByEmail(email)){
             return ResponseEntity.status(200).body(new ApiResponse(false,"Email Already Exist"));
         }
-        return ResponseEntity.status(200).body(new ApiResponse(true,"UserName And Email Are Available"));
+        return ResponseEntity.status(200).body(new ApiResponse(true,"Email is Available"));
     }
 
     @PostMapping("/send-otp")
